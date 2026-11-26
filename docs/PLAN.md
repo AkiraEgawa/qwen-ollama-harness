@@ -12,4 +12,8 @@
     - memory.py (handles what things to store in memory.jsonl)
     - tools.py (the tools that are available to the agent)
     
-    
+
+Session Memory
+- Figure out how to get a unique session id
+- Call append_action from memory.py
+- Do we load at start or load at end?
