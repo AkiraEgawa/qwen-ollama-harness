@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Database Webapp</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        input[type='text'] {
+            width: calc(100% - 22px);
+            padding: 8px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Basic Database Webapp</h2>
+        <input type="text" id="item" placeholder="Enter item">
+        <button onclick="addItem()">Add Item</button>
+        <table id="itemsTable">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Items will be added here dynamically -->
+            </tbody>
+        </table>
+    </div>
+    <script>
+        const itemsTable = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+        let items = [];
+
+        function addItem() {
+            const itemInput = document.getElementById('item');
+            const itemValue = itemInput.value.trim();
+
+            if (itemValue !== '') {
+                items.push(itemValue);
+                renderItems();
+                itemInput.value = '';
+            } else {
+                alert('Please enter a valid item.');
+            }
+        }
+
+        function renderItems() {
+            itemsTable.innerHTML = '';
+
+            items.forEach((item, index) => {
+                const row = itemsTable.insertRow();
+                const cell1 = row.insertCell(0);
+                const cell2 = row.insertCell(1);
+
+                cell1.textContent = item;
+
+                const updateButton = document.createElement('button');
+                updateButton.textContent = 'Update';
+                updateButton.onclick = () => updateItem(index);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = () => deleteItem(index);
+
+                cell2.appendChild(updateButton);
+                cell2.appendChild(deleteButton);
+            });
+        }
+
+        function updateItem(index) {
+            const itemInput = prompt('Enter new item:', items[index]);
+
+            if (itemInput !== null && itemInput.trim() !== '') {
+                items[index] = itemInput.trim();
+                renderItems();
+            }
+        }
+
+        function deleteItem(index) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                items.splice(index, 1);
+                renderItems();
+            }
+        }
+    </script>
+</body>
+</html>
