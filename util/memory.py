@@ -3,9 +3,11 @@ import json
 import warnings
 from datetime import datetime, timezone
 from typing import Any
+import uuid
+from datetime import datetime
 
 MEMORY_FILE = Path("data/MEMORY.md")
-SESSIONS_DIR = Path("sessions")
+SESSIONS_DIR = Path("data/sessions")
 
 def load_memory(max_lines: int = 50) -> str:
     if not MEMORY_FILE.exists():
@@ -52,3 +54,8 @@ def append_action(step: dict[str, Any] | str, result: Any, session_id: int | str
             stacklevel=2,
         )
         return False
+
+def generate_session_id() -> str:
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    short_hash = uuid.uuid4().hex[:6]
+    return f"{timestamp}_{short_hash}"  # e.g., "20261126_121805_a4f91c"

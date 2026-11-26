@@ -38,6 +38,9 @@ def run_agent_session():
     """Manages an interactive session where user can continuously assign/refine tasks."""
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
 
+    session_id = generate_session_id()
+    print(f"Session ID: {session_id}")
+
     print("=== Interactive Agent Session Started ===")
     print("Type your task below. Enter '/bye' at any prompt to exit.\n")
 
@@ -87,7 +90,11 @@ def run_agent_session():
 
             # Final Answer Reached for this prompt turn
             if action == "final_answer":
-                print(f"\n[Agent Completed Step]\n{decision.get('answer')}")
+                answer = decision.get("answer")
+                res = append_action(step=decision, result={"final_answer": answer}, session_id=session_id)
+                if res:
+                    print(f"Final Answer appended to {session_id}")
+                print(f"\n[Agent Completed Step]\n{answer}")
                 messages.append({"role": "assistant", "content": raw_response})
                 completed_step = True
                 break
@@ -105,6 +112,9 @@ def run_agent_session():
 
                 print(f"[Tool Result] {tool_output[:120]}...")
 
+                res = append_action(step=decision, result=tool_output, session_id=session_id)
+                if res:
+                    print(f"Action appended to {session_id}")
                 messages.append({"role": "assistant", "content": raw_response})
                 messages.append({
                     "role": "user",
