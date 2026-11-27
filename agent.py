@@ -11,10 +11,36 @@ import json
 OLLAMA_API = "http://localhost:11434/api/chat"
 MODEL = "qwen2.5-coder:7b"
 
+SETTINGS_PATH = Path("util/settings.json")
+
 # --- 2. System Instructions ---
 SYSTEM_PROMPT = build_system_prompt(TOOL_SCHEMAS, load_memory())
+options = {"temperature": 0.4, "num_ctx": 8192, "num_predict": 4096, "repeat_penalty": 1.06,}
 
 # --- 3. The Agent Loop ---
+
+def set_options(settings_path: Path = SETTINGS_PATH) -> dict:
+    """Loads Ollama options from util/settings.json, keeping defaults for missing keys."""
+    if not settings_path.exists():
+        return options
+
+    try:
+        with settings_path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        # Supports either a nested {"options": {...}} block or flat keys at top level
+        loaded = data.get("options", data) if isinstance(data, dict) else {}
+
+        for key in options:
+            if key in loaded:
+                options[key] = loaded[key]
+
+    except Exception as e:
+        print(f"[Warning] Failed to load {settings_path}, using default options: {e}")
+
+    return options
+
+options = set_options()
 
 def query_llm(messages: list) -> str:
     """Sends current conversation state to Ollama."""
@@ -23,19 +49,15 @@ def query_llm(messages: list) -> str:
         "messages": messages,
         "format": "json",
         "stream": False,
-        "options": {
-            "temperature": 0.4,
-            "num_ctx": 8192,
-            "num_predict": 4096,
-            "repeat_penalty": 1.06,
-        },
+        "options": options,
     }
     response = requests.post(OLLAMA_API, json=payload)
     response.raise_for_status()
     return response.json()["message"]["content"]
 
-def run_agent_session():
+def run_agent_session(root="./"):
     """Manages an interactive session where user can continuously assign/refine tasks."""
+    TOOL_REGISTRY = create_workspace_tools(root)
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
 
     session_id = generate_session_id()

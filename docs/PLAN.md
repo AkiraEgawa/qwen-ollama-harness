@@ -14,6 +14,7 @@
     
 
 Session Memory
-- Figure out how to get a unique session id
-- Call append_action from memory.py
-- Do we load at start or load at end?
+- Figure out how to get a unique session id : Done
+- Call append_action from memory.py : Done (With troubleshooting messages in terminal)
+- Do we load at start or load at end? : We load at start at memory definition
+    - Figure out the loading of the memory and implement into agent.py
